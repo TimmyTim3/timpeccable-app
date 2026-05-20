@@ -2,41 +2,72 @@ import streamlit as st
 import datetime
 from twilio.rest import Client
 
+# --- PAGE CONFIG ---
 st.set_page_config(page_title="TIMpeccable Auto Spa", layout="wide")
 
-# --- DYNAMIC DAILY TRIVIA ---
+# --- CSS STYLES ---
+st.markdown("""
+<style>
+.graffiti-title { font-family: 'Permanent Marker', cursive; font-size: 50px; color: #00ffcc; text-shadow: 2px 2px #000; }
+.section-header { color: #ff5733; border-bottom: 2px solid #ff5733; }
+</style>
+""", unsafe_allow_html=True)
+
+# --- SIDEBAR NAVIGATION ---
+st.sidebar.title("Menu")
+page = st.sidebar.radio("Go to", ["Home", "Polls", "Reviews", "Trivia Central"])
+
+# --- DATA: DAILY TRIVIA ---
 def get_daily_trivia():
     today = datetime.date.today().day
     all_facts = [
         "Bird droppings are acidic; they can etch paint in 48 hours!",
-        "Washing your car regularly prevents rust buildup on the chassis.",
-        "A clean car is more aerodynamic and can improve fuel efficiency.",
-        "Clear coat is the 'sunscreen' for your car's paint job.",
-        "Professional detailing can increase your car's resale value by up to 10%.",
-        # ... Add more here ...
+        "Regular washes prevent rust buildup on the chassis.",
+        "A clean car is more aerodynamic, improving fuel efficiency.",
+        "Clear coat is the 'sunscreen' for your car's paint.",
+        "Detailing can increase resale value by 10%.",
+        "Tires contain UV inhibitors to stop cracking.",
+        "Modern paint is applied in layers."
     ]
-    # Rotate the 5 facts based on the day
-    start_idx = today % len(all_facts)
-    return all_facts[start_idx : start_idx + 5]
+    return all_facts[today % (len(all_facts)-4) : today % (len(all_facts)-4) + 5]
 
-# --- UI DESIGN ---
-st.markdown("<h1 style='text-align: center; color: #00ffcc;'>✨ TIMpeccable Auto Spa</h1>", unsafe_allow_html=True)
+# --- PAGES ---
+if page == "Home":
+    st.markdown('<h1 class="graffiti-title">✨ TIMpeccable Auto Spa</h1>', unsafe_allow_html=True)
+    st.subheader('"For a TIMpeccable shine, every single time."')
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        st.markdown('<h2 class="section-header">Our Story</h2>', unsafe_allow_html=True)
+        st.write("We restore your car's soul with precision.")
+    with col2:
+        st.markdown('<h2 class="section-header">Our Objective</h2>', unsafe_allow_html=True)
+        st.write("World-class detailing for every customer.")
+    
+    st.write("---")
+    st.markdown('<h2 class="section-header">Find Us</h2>', unsafe_allow_html=True)
+    st.write("**📍 Address:** The Rock Hair Salon, Old Location, Bethlehem")
+    st.write("**📞 Contact:** 065 913 2846 (WhatsApp/Calls)")
 
-# Image Grid
-col1, col2, col3 = st.columns(3)
-col1.image("https://images.unsplash.com/photo-1601362840469-51e4d8d58785?w=500", caption="Precision Detailing")
-col2.image("https://images.unsplash.com/photo-1520340356584-f9951d1aaea6?w=500", caption="Interior Refresh")
-col3.image("https://images.unsplash.com/photo-1596422846543-75c6fc197f07?w=500", caption="Premium Shine")
+elif page == "Polls":
+    st.header("📊 Customer Polls")
+    poll = st.radio("What's your favorite wash?", ["Hand Wash", "Steam Clean", "Full Detail"])
+    if st.button("Vote"):
+        st.success(f"Thanks for voting for {poll}!")
 
-# Dynamic Trivia Section
-st.subheader("💡 Today's Fun Facts & Trivia")
-daily_facts = get_daily_trivia()
-for i, fact in enumerate(daily_facts):
-    st.info(f"{i+1}. {fact}")
+elif page == "Reviews":
+    st.header("⭐ Customer Reviews")
+    review = st.text_area("Leave your feedback here:")
+    if st.button("Submit Review"):
+        st.success("Thank you for your feedback!")
 
-# Booking Form
-with st.form("booking"):
-    name = st.text_input("Name")
-    submitted = st.form_submit_button("Book Now")
-    # (Rest of your booking logic remains the same)
+elif page == "Trivia Central":
+    st.header("💡 Daily Trivia")
+    for fact in get_daily_trivia():
+        st.info(fact)
+
+# --- BOOKING (Visible on all pages) ---
+st.sidebar.write("---")
+if st.sidebar.button("Book an Appointment"):
+    st.sidebar.write("Call 065 913 2846 to lock in your slot!")
 
